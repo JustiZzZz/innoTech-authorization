@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     APP_BASE_URL: str = 'http://localhost:8000'
 
-    SECRET_KEY: str = ''
+    SECRET_KEY: str = "super-secret-key-auth-min-32-chars-long-please-help-me"
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
 
