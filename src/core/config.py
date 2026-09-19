@@ -19,14 +19,14 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str = 'postgresql+asyncpg://postgres:postgres@localhost:5432/innotech_auth'
 
-    SMTP_HOST: str = ''
-    SMTP_PORT: str = ''
+    SMTP_HOST: str = 'localhost'
+    SMTP_PORT: str = '1025'
     SMTP_USER: str = ''
     SMTP_PASSWORD: str = ''
     SMTP_USE_TLS: bool = False
 
-    EMAIL_SENDER_NAME: str = ''
-    EMAIL_SENDER_ADDRESS: str = ''
+    EMAIL_SENDER_NAME: str = 'Kiryl Bulavin'
+    EMAIL_SENDER_ADDRESS: str = 'lala@mail.com'
 
 @lru_cache
 def get_settings():
