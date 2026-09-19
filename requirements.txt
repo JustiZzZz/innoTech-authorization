@@ -1,0 +1,15 @@
+anyio
+fastapi
+uvicorn[standart]
+sqlalchemy>=2.0.36
+asyncpg
+alembic
+pydantic-settings
+email-validator
+pwdlib[argon2]
+PyJWT
+aiosmtplib
+jinja2
+httpx
+pytest
+pytest-asyncio
