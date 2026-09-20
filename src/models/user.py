@@ -10,6 +10,8 @@ if TYPE_CHECKING:
 
 
 class User(Base, UUIDPrimaryKeyMixin, TimestampMixin):
+    """Сущность пользователя."""
+
     __tablename__ = "users"
     __table_args__ = (
         UniqueConstraint("email", name="uq_users_email"),
@@ -17,24 +19,10 @@ class User(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         Index("ix_users_is_verified", "is_verified"),
     )
 
-    email: Mapped[str] = mapped_column(
-        String(320),
-        nullable=False,
-    )
-    password_hash: Mapped[str] = mapped_column(
-        String(255),
-        nullable=False,
-    )
-    is_active: Mapped[bool] = mapped_column(
-        Boolean,
-        default=True,
-        nullable=False,
-    )
-    is_verified: Mapped[bool] = mapped_column(
-        Boolean,
-        default=False,
-        nullable=False,
-    )
+    email: Mapped[str] = mapped_column(String(320), nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     verification_tokens: Mapped[list["VerificationToken"]] = relationship(
         "VerificationToken",

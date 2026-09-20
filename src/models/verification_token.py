@@ -13,6 +13,8 @@ if TYPE_CHECKING:
 
 
 class VerificationToken(Base, UUIDPrimaryKeyMixin, TimestampMixin):
+    """Одноразовые токены верификации email. """
+
     __tablename__ = "verification_tokens"
     __table_args__ = (
         Index("ix_verification_tokens_token_hash", "token_hash", unique=True),
@@ -24,19 +26,14 @@ class VerificationToken(Base, UUIDPrimaryKeyMixin, TimestampMixin):
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
-    token_hash: Mapped[str] = mapped_column(
-        String(64),
-        nullable=False,
-    )
-    expires_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        nullable=False,
-    )
+    token_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     used_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
         default=None,
     )
+
     user: Mapped["User"] = relationship(
         "User",
         back_populates="verification_tokens",

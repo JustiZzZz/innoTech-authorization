@@ -3,36 +3,44 @@ import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
+
 import jwt
 from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
 
 from src.core.config import get_settings
 
-
 settings = get_settings()
 
 _password_hash = PasswordHash.recommended()
 
+
 def hash_password(plain_password: str) -> str:
     return _password_hash.hash(plain_password)
 
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    # Защита от тайминг-атак (сверка за константное время под капотом)
     return _password_hash.verify(plain_password, hashed_password)
 
-def hash_token(raw_token: str) ->str:
+
+def hash_token(raw_token: str) -> str:
     return hashlib.sha256(raw_token.encode("utf-8")).hexdigest()
 
+
 def generate_verification_token() -> tuple[str, str]:
+    """Генерация одноразовой ссылки через паттерн Hash-at-Rest. """
     raw_token = secrets.token_urlsafe(32)
     token_hash = hash_token(raw_token)
     return raw_token, token_hash
+
 
 def create_access_token(
     user_id: UUID | str,
     email: str,
     expires_delta: timedelta | None = None,
 ) -> str:
+    """Выпуск JWT с минимальным набором клеймов (RFC 7519: sub, email, iat, exp)."""
     now = datetime.now(timezone.utc)
     expire = now + (
         expires_delta
@@ -47,6 +55,7 @@ def create_access_token(
         "type": "access",
     }
     return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
+
 
 def decode_access_token(token: str) -> dict[str, Any] | None:
     try:

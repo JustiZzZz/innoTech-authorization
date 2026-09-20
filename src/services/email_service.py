@@ -1,6 +1,3 @@
-# Шаблон письма сгенерирован нейронкой + динамические ссылки
-
-
 from email.message import EmailMessage
 
 import aiosmtplib
@@ -11,6 +8,7 @@ settings = get_settings()
 
 
 class EmailService:
+    """Асинхронная отправка транзакционных писем."""
 
     async def send_verification_email(
         self,
@@ -20,11 +18,11 @@ class EmailService:
         message = EmailMessage()
         message["From"] = f"{settings.EMAIL_SENDER_NAME} <{settings.EMAIL_SENDER_ADDRESS}>"
         message["To"] = to_email
-        message["Subject"] = "Подтверждение регистрации"
+        message["Subject"] = "Подтверждение регистрации | InnoTech Solutions"
 
         plain_text = (
             f"Здравствуйте!\n\n"
-            f"Благодарим за регистрацию.\n"
+            f"Благодарим за регистрацию в InnoTech Solutions.\n"
             f"Для завершения регистрации перейдите по ссылке:\n"
             f"{verification_link}\n\n"
             f"Ссылка активна в течение {settings.ACCESS_TOKEN_EXPIRE_MINUTES} минут.\n"

@@ -28,6 +28,7 @@ settings = get_settings()
 
 
 class AuthService:
+    """Сервис аутентификации и регистрации пользователей.  """
 
     def __init__(
         self,
@@ -40,6 +41,7 @@ class AuthService:
         self.email_service = email_service or EmailService()
 
     async def register(self, email: str, password: str) -> User:
+        """Регистрация нового пользователя с отправкой ссылки на email. """
         existing_user = await self.user_repo.get_by_email(email)
         if existing_user:
             raise UserAlreadyExistsError(f"Пользователь с почтой '{email}' уже зарегистрирован.")
@@ -71,6 +73,8 @@ class AuthService:
         return user
 
     async def verify_email_and_authorize(self, raw_token: str) -> tuple[User, str]:
+        """Верификация email по токену и мгновенная авторизация в системе.
+        """
         token_hash = hash_token(raw_token)
         token = await self.token_repo.get_by_hash(token_hash)
 
@@ -96,10 +100,10 @@ class AuthService:
         await self.session.refresh(user)
 
         access_token = create_access_token(user_id=user.id, email=user.email)
-
         return user, access_token
 
     async def authenticate_by_password(self, email: str, password: str) -> tuple[User, str]:
+        """Стандартный вход по паролю для подтвержденных пользователей."""
         user = await self.user_repo.get_by_email(email)
         if not user or not verify_password(password, user.password_hash):
             raise InvalidCredentialsError("Неверный адрес электронной почты или пароль.")
