@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.db import get_db
@@ -13,6 +14,7 @@ from src.schemas.user import UserCreate, UserResponse
 from src.services.auth_service import AuthService
 
 router = APIRouter(prefix="/auth", tags=["Авторизация"])
+templates = Jinja2Templates(directory="src/templates")
 
 
 @router.post(
@@ -40,12 +42,25 @@ async def register(
     response_model=TokenResponse,
 )
 async def verify_email(
+    request: Request,
     token: str,
     db: AsyncSession = Depends(get_db),
 ):
     auth_service = AuthService(db)
     try:
         user, access_token = await auth_service.verify_email_and_authorize(raw_token=token)
+
+        accept_header = request.headers.get("accept", "")
+        if "text/html" in accept_header:
+            return templates.TemplateResponse(
+                request=request,
+                name="success.html",
+                context={
+                    "email": user.email,
+                    "access_token": access_token,
+                },
+            )
+
         return TokenResponse(
             access_token=access_token,
             token_type="bearer",

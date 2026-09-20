@@ -1,0 +1,94 @@
+<!-- Написано нейронкой, хотя динамические ссылки я знаю и в FastAPI и в Django -->
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вы успешно авторизованы! | InnoTech</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e1e4e8;
+            text-align: center;
+        }
+        .icon { font-size: 52px; margin-bottom: 16px; }
+        h2 { color: #1a202c; margin-top: 0; margin-bottom: 8px; }
+        p.desc { color: #4a5568; font-size: 15px; margin-bottom: 24px; line-height: 1.5; }
+        .user-badge {
+            background: #e6fffa;
+            color: #234e52;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 24px;
+        }
+        .token-card {
+            background: #f7fafc;
+            border: 1px solid #edf2f7;
+            border-radius: 8px;
+            padding: 14px;
+            text-align: left;
+            margin-bottom: 24px;
+        }
+        .token-title { font-size: 12px; color: #718096; font-weight: bold; text-transform: uppercase; margin-bottom: 6px; }
+        .token-val {
+            font-family: monospace;
+            font-size: 11px;
+            color: #2d3748;
+            word-break: break-all;
+            background: #edf2f7;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .btn-docs {
+            display: inline-block;
+            background: #0066cc;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .btn-docs:hover { background: #0052a3; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon">✅</div>
+        <h2>Email успешно подтверждён!</h2>
+        <p class="desc">Вы авторизованы в системе InnoTech Solutions.</p>
+
+        <div class="user-badge">Пользователь: {{ email }}</div>
+
+        <div class="token-card">
+            <div class="token-title">Ваш JWT Access Token:</div>
+            <div class="token-val">{{ access_token }}</div>
+        </div>
+
+        <a href="/docs" class="btn-docs">Перейти в Swagger UI (/docs)</a>
+    </div>
+
+    <script>
+        localStorage.setItem('access_token', '{{ access_token }}');
+    </script>
+</body>
+</html>
