@@ -41,13 +41,18 @@ class AuthService:
         self.email_service = email_service or EmailService()
 
     async def register(self, email: str, password: str) -> User:
-        """Регистрация нового пользователя с отправкой ссылки на email. """
+        """Регистрация с защитой от 'зависших' аккаунтов."""
         existing_user = await self.user_repo.get_by_email(email)
-        if existing_user:
-            raise UserAlreadyExistsError(f"Пользователь с почтой '{email}' уже зарегистрирован.")
-
         pwd_hash = hash_password(password)
-        user = await self.user_repo.create(email=email, password_hash=pwd_hash)
+
+        if existing_user:
+            if existing_user.is_verified:
+                raise UserAlreadyExistsError(f"Пользователь с почтой '{email}' уже зарегистрирован.")
+
+            existing_user.password_hash = pwd_hash
+            user = existing_user
+        else:
+            user = await self.user_repo.create(email=email, password_hash=pwd_hash)
 
         raw_token, token_hash = generate_verification_token()
         expires_at = datetime.now(timezone.utc) + timedelta(
@@ -62,9 +67,7 @@ class AuthService:
 
         await self.session.commit()
 
-        verification_link = (
-            f"{settings.APP_BASE_URL}/api/v1/auth/verify?token={raw_token}"
-        )
+        verification_link = f"{settings.APP_BASE_URL}/api/v1/auth/verify?token={raw_token}"
         await self.email_service.send_verification_email(
             to_email=user.email,
             verification_link=verification_link,
@@ -118,3 +121,31 @@ class AuthService:
 
         access_token = create_access_token(user_id=user.id, email=user.email)
         return user, access_token
+
+    async def resend_verification_email(self, email: str) -> None:
+        """Повторный выпуск токена и отправка ссылки для неподтвержденных аккаунтов."""
+        user = await self.user_repo.get_by_email(email)
+
+        if not user:
+            return
+
+        if user.is_verified:
+            return
+
+        raw_token, token_hash = generate_verification_token()
+        expires_at = datetime.now(timezone.utc) + timedelta(
+            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
+
+        await self.token_repo.create(
+            user_id=user.id,
+            token_hash=token_hash,
+            expires_at=expires_at,
+        )
+        await self.session.commit()
+
+        verification_link = f"{settings.APP_BASE_URL}/api/v1/auth/verify?token={raw_token}"
+        await self.email_service.send_verification_email(
+            to_email=user.email,
+            verification_link=verification_link,
+        )

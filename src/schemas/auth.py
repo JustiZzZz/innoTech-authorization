@@ -31,3 +31,7 @@ class MessageResponse(BaseModel):
     """Универсальная схема статусного текстового ответа."""
 
     message: str
+
+class ResendVerificationRequest(BaseModel):
+    """Схема запроса повторной отправки письма."""
+    email: EmailStr

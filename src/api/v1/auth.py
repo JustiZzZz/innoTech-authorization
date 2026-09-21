@@ -11,7 +11,7 @@ from src.core.exceptions import (
     UserAlreadyExistsError,
     UserNotVerifiedError,
 )
-from src.schemas.auth import LoginRequest, RegisterResponse, TokenResponse
+from src.schemas.auth import LoginRequest, RegisterResponse, TokenResponse, MessageResponse, ResendVerificationRequest
 from src.schemas.user import UserCreate, UserResponse
 from src.services.auth_service import AuthService
 
@@ -105,3 +105,19 @@ async def verify_email(
         )
     except (InvalidTokenError, TokenExpiredError, TokenAlreadyUsedError) as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+@router.post(
+    "/resend-verification",
+    response_model=MessageResponse,
+    summary="Повторная отправка ссылки подтверждения",
+)
+async def resend_verification(
+    data: ResendVerificationRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Генерирует новый токен и высылает свежее письмо, если аккаунт еще не активирован."""
+    auth_service = AuthService(db)
+    await auth_service.resend_verification_email(email=data.email)
+    return MessageResponse(
+        message="Если аккаунт с таким email существует и не активирован, мы выслали новую ссылку на почту."
+    )
